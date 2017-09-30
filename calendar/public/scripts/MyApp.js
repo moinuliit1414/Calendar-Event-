@@ -1,45 +1,108 @@
-﻿var app = angular.module('myApp', ['ui.calendar','ui.bootstrap']).run(['$rootScope', function($rootScope) {
-    $rootScope.safeApply = function(fn) {
-        
-        if (this.$root && this.$root.$$phase) {
-            var phase = this.$root.$$phase;
-            if (phase == '$apply' || phase == '$digest') {
-                if (fn && (typeof(fn) === 'function')) {
-                    fn();
-                }
-            } else {
-                this.$apply(fn);
-            }
-        } else {
-            $scope.$apply(fn);
-          
-        }
+﻿/****************************************************/
+// Filename: public\scripts\MyApp.js
+// Created: Moinul Islam<moinul39.iit@gmail.com>
+// Change history:
+// 29.09.2017 / Moinul Islam<moinul39.iit@gmail.com>
+/****************************************************/
+var app = angular.module('myApp', ['ui.calendar','ui.bootstrap']).run(['$rootScope', function($rootScope) {}]);
 
-    };
+//********************************** Handle to get list all evens  by [GET]***************************************
+/// <summary>
+///     Factory for Broadcasting and Listining socket Post
+/// </summary>
+/// <param name="$rootScope">
+///    Event request.URL format is URL="/api/event/" or URL="/api/"
+/// </param>
+app.factory('socket', ['$rootScope', function($rootScope) {
+  var socket = io.connect();
+  return {
+    on: function(eventName, callback){
+      socket.on(eventName, callback);
+    },
+    emit: function(eventName, data) {
+      socket.emit(eventName, data);
+    }
+  };
 }]);
 
-// Controller for modal created from other modal
+
+// Controller for popOver create new/edit modal created from Calendar
 var NewModalInstanceCtrl = function ($scope,$http, $modalInstance, event) {
 	console.log('Opening modal controller...' +JSON.stringify(event));
-	var date = new Date(event);var d = date.getDate();var m = date.getMonth();var y = date.getFullYear();
+	if('id' in event){
+		$scope.newEvent={"id":event.id,
+						"title": event.title,
+						"description": event.description,
+						"startat": new Date(event.start).toISOString(),
+						"endat": new Date(event.end).toISOString(),
+						"allDay": event.allDay};
+	}else{
+		var date = new Date(event);var d = date.getDate();var m = date.getMonth();var y = date.getFullYear();			
+		$scope.newEvent={"startat":date.toISOString(),"endat":date.toISOString(),"allDay":false};
+	}
+	
 	
 	$scope.ErrorMessage="";
-	$scope.newEvent={"startat":date.toISOString(),"endat":date.toISOString(),"isfullday":false};
 	
-	// $scope.newEvent.title="Event";
-	// $scope.newEvent.description="new test Event";
-	// $scope.newEvent.startat=d.toISOString();
-	// $scope.newEvent.endat=d.toISOString();
-	// $scope.newEvent.isfullday=false;
-	
-	
+/// <summary>
+///     update existing Event(update button action perform)
+/// </summary>
+/// <param name="newEvent">
+///    Form Model
+/// </param>
+
+	$scope.updateData = function (newEvent) {
+		console.log('update clicked with '+JSON.stringify(newEvent));
+	 $http({
+        url: '/api/event/'+newEvent.id+'/update',
+        method: 'POST',
+		headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+		transformRequest: function(obj) { //transform object to urlencoded
+			var str = [];
+			for(var p in obj)
+			str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+			console.log(str.join("&"));
+			return str.join("&");
+		},
+        data: newEvent
+    })
+    .then(function(response) {
+		var data=response.data;
+		console.log('Updated data '+JSON.stringify(data));
+		if(data.result=="success"){
+			$scope.ErrorMessage="";
+			$modalInstance.close({"id":data.data._id,
+						"title": data.data.title,
+						"description": data.data.description,
+						"start":  new Date( Date.parse( data.data.startat )),
+						"end": new Date( Date.parse( data.data.endat )),
+						"allDay": data.data.isfullday,
+						"stick": true});			
+		}else if(data.result=="fail"){
+			console.log('inserted fail '+data.message)
+			$scope.ErrorMessage=data.message;
+		}
+            // success
+    }, 
+    function(response) { // optional
+            // failed
+			$scope.ErrorMessage=response.data.message;
+    });
+	};
+
+/// <summary>
+///     Add Event(save button action perform)
+/// </summary>
+/// <param name="newEvent">
+///    Form Model
+/// </param>	
 	$scope.saveData = function (newEvent) {
 		console.log('baiuofbv '+JSON.stringify(newEvent));
 	 $http({
         url: '/api/event/create/',
         method: 'POST',
 		headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-		transformRequest: function(obj) {
+		transformRequest: function(obj) { //transform object to urlencoded
 			var str = [];
 			for(var p in obj)
 			str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
@@ -70,15 +133,6 @@ var NewModalInstanceCtrl = function ($scope,$http, $modalInstance, event) {
             // failed
 			$scope.ErrorMessage=data.message;
     });
-	
-	// console.log('Opening modal controller...' +JSON.stringify(newEvent));
-    // $modalInstance.close({"id":"yt753y4-t48t4",
-						// "title": $scope.newEvent.title,
-						// "description": $scope.newEvent.description,
-						// "start":  new Date( Date.parse( $scope.newEvent.startat )),
-						// "end": new Date( Date.parse( $scope.newEvent.endat )),
-						// "allDay": $scope.newEvent.allDay,
-						// "stick": true});
   };
 
   $scope.cancelForm = function () {
@@ -86,23 +140,8 @@ var NewModalInstanceCtrl = function ($scope,$http, $modalInstance, event) {
   };  
 };
 
-app.service('modalProvider',['$modal', function ($modal){
 
-	var openPopupModal= function(eventObj) {
-		var modalInstance = $modal.open({          
-			templateUrl: 'newModalContent.html',
-			controller: NewModalInstanceCtrl,
-			backdrop: false,
-			resolve: {
-				event: function () {
-				return eventObj;
-				}
-			}
-		});
-	}
-	return openPopupModal;
-}]);
-app.controller('myNgController', ['$scope','$http','$modal','$timeout', 'uiCalendarConfig', function ($scope,$http, $modal,$timeout, uiCalendarConfig) {
+app.controller('myNgController', ['$scope','$http','$modal','$timeout','socket', 'uiCalendarConfig', function ($scope,$http, $modal,$timeout,socket, uiCalendarConfig) {
     
     $scope.SelectedEvent = null;
     var isFirstTime = true;
@@ -112,12 +151,57 @@ app.controller('myNgController', ['$scope','$http','$modal','$timeout', 'uiCalen
 	
 	$scope.ErrorMessage=null;
 	$scope.SuccessMessage=null;
-	// var dialogOptions = {
-    // controller: 'EditCtrl',
-    // templateUrl: 'itemEdit.html'
-	// };
 	
-    //Load events from server
+	
+	/// <summary>
+	///     listining server event EventAdded
+	/// </summary>
+	/// <param name="newEvent">
+	///    Callback with data
+	/// </param>	
+	socket.on('EventAdded', function (data) {
+		console.log("event data"+data);
+		var event={id:data.data._id,
+						title: data.data.title,
+						description: data.data.description,
+						start:  new Date( Date.parse( data.data.startat )),
+						end: new Date( Date.parse( data.data.endat )),
+						allDay: data.data.isfullday,
+						stick: true}
+		$scope.events.push(event);
+	});
+	
+	/// <summary>
+	///     listining server event EventUpdated
+	/// </summary>
+	/// <param name="data">
+	///    Callback with data
+	/// </param>
+	socket.on('EventUpdated', function (data) {
+		console.log("event data "+JSON.stringify(data));
+		//var totalEvent=$scope.events.length;
+		
+		var event={id:data.data._id,
+						title: data.data.title,
+						description: data.data.description,
+						start:  new Date( Date.parse( data.data.startat )),
+						end: new Date( Date.parse( data.data.endat )),
+						allDay: data.data.isfullday,
+						stick: true}
+		for (let evn of $scope.events) {
+			if (evn.id === event.id) {
+				var a=$scope.events.indexOf(evn);
+				$scope.events[a]=event;
+				//this.orders.splice(this.orders.indexOf(order), 1);
+				//break;
+			}
+		}
+        $scope.$apply();// apply scope value chaange
+		
+	});
+	
+	
+    //Load events from server on first time
     $http.get('/api/', {
 		headers: [{'Content-Type': 'application/json'}] ,
         cache: true,
@@ -126,18 +210,20 @@ app.controller('myNgController', ['$scope','$http','$modal','$timeout', 'uiCalen
 		console.log('value ' +JSON.stringify(data));
         $scope.events.slice(0, $scope.events.length);
         angular.forEach(data.data, function (value) {
-			
-            $scope.events.push({
-				id:value._id,
+			console.log('event value ' +JSON.stringify(value));
+			var evn={id:value._id,
                 title: value.title,
                 description: value.description,
-				start:  new Date( Date.parse( value.startat )),
-                end: new Date( Date.parse( value.endat )),
+				// start:  new Date( Date.parse( value.startat )),
+                // end: new Date( Date.parse( value.endat )),
+				start:  new Date(  value.startat ),
+                end: new Date( value.endat ),
                 //start: new Date(parseInt(value.startat.substr(6))),
                 //end: new Date(parseInt(value.endat.substr(6))),
                 allDay: value.isfullday,
-                stick: true
-            });
+                stick: true};
+			console.log('event value ' +JSON.stringify(evn));
+            $scope.events.push(evn);
         });
     });
 	
@@ -145,9 +231,9 @@ app.controller('myNgController', ['$scope','$http','$modal','$timeout', 'uiCalen
 		$scope.openModal();
 	};
 	
-	// Open modal from modal
+	// Open popover event form  from Calender
 	$scope.openModal = function (eventObj) {
-		console.log('Opening modal...');
+		console.log('Opening modal...'+JSON.stringify(eventObj));
 		  var modalInstance = $modal.open({
 			animation: $scope.animationsEnabled,
 			templateUrl: 'newModalContent.html',
@@ -155,6 +241,7 @@ app.controller('myNgController', ['$scope','$http','$modal','$timeout', 'uiCalen
 			backdrop: false,
 			resolve: {
 			  event: function () {
+				  console.log('resonving dependency'+JSON.stringify(eventObj));
 				return eventObj;
 			  }
 			}
@@ -167,7 +254,7 @@ app.controller('myNgController', ['$scope','$http','$modal','$timeout', 'uiCalen
 			$scope.$apply(function() {
 			  modalInstance.result.then(
 				function (event) {
-					$scope.events.push(event);
+					//$scope.events.push(event);
 					console.log('Modal closed at: ' + new Date());
 					console.log(event);
 					$scope.SuccessMessage="event added Sucessfully...";
@@ -189,9 +276,6 @@ app.controller('myNgController', ['$scope','$http','$modal','$timeout', 'uiCalen
     
 	};
   
-	// $scope.alertOnEventClick = function( date,allDay,jsEvent, view) {
-            // $scope.alertMessage = (' was clicked ');
-    // };
     //configure calendar
     $scope.uiConfig = {
         calendar: {
@@ -200,14 +284,25 @@ app.controller('myNgController', ['$scope','$http','$modal','$timeout', 'uiCalen
             displayEventTime: true,
 			dayClick: function(event) {console.log('Day clicking');$scope.openModal(event)},
             header: {
-                left: 'prev',//'month basicWeek basicDay agendaWeek agendaDay',
+                left: '',//'month basicWeek basicDay agendaWeek agendaDay',
                 center: 'title',
-                right:'today prev,next'
+                right:'prev, today ,next'
             },
-			//eventClick:function(event) {console.log('event clicking');$scope.openModal(event)},
-             eventClick: function (event) {
-                 $scope.SelectedEvent = event;
-             },
+			eventClick:function(calEvent, jsEvent, view) {				
+				if(calEvent.end==null){
+					calEvent.end=calEvent.start;
+				}
+				console.log('Event clicking'+calEvent.end );
+				var event={id:calEvent.id,
+						title: calEvent.title,
+						description: calEvent.description,
+						start:  new Date( calEvent.start ),
+						end: new Date(calEvent.end ),
+						allDay: calEvent.allDay,
+						stick: true}
+				$scope.SelectedEvent = event;
+				$scope.openModal($scope.SelectedEvent)
+			},
             eventAfterAllRender: function () {
                 if ($scope.events.length > 0 && isFirstTime) {
                     //Focus first event
@@ -217,9 +312,7 @@ app.controller('myNgController', ['$scope','$http','$modal','$timeout', 'uiCalen
             }
         }
     };
-	
-	// $scope.PopUpEvent = function(index) {
-        // alert('b yud cu');
-    // };
-
 }])
+/****************************************************/
+// EOF: public\scripts\MyApp.js
+/****************************************************/

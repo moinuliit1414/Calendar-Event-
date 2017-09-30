@@ -1,12 +1,19 @@
+/****************************************************/
+// Filename: api.js
+// Created: Moinul Islam<moinul39.iit@gmail.com>
+// Change history:
+// 27.09.2017 / Moinul Islam<moinul39.iit@gmail.com>
+/****************************************************/
+
 var express = require('express');
 var router = express.Router();
 
 // Require controller modules
-var event_controller = require('../controllers/event');
+var event_controller = require('../Controllers/event');
 
 /// EVENT ROUTES ///
  
-/* GET event home page. */
+/* GET event home page. will get all event list*/
 router.get('/', event_controller.event_list);
 
 /* GET request for creating a Event. NOTE This must come before routes that display Book (uses id) */

@@ -1,0 +1,62 @@
+<div class="container" >
+					<div ng-show="!newEvent.id" class="modal-header">
+						<h1>Create Event</h1>
+					</div>
+					<div ng-show="newEvent.id" class="modal-header">
+						<h1>Update Event</h1>
+					</div>
+					<div ng-show="ErrorMessage" class="alert alert-danger">
+						<strong></strong> {{ErrorMessage}}
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<div class="col-lg-4 input-group">
+								<label>Event Name</label>
+							</div>
+							<div class="col-lg-6">
+								<input type="text" ng-model="newEvent.title" />
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-lg-4 input-group">
+								<label>Description</label>
+							</div>
+							<div class="col-lg-6">
+								<textarea class="form-control" ng-model="newEvent.description" rows="5" id="comment"></textarea>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-lg-4 input-group">
+								<label>Start Time</label>
+							</div>
+							<div class="col-lg-6">
+							
+								<input type="text" ng-model="newEvent.startat" placeholder="ex (2017-09-27T09:00:00.000Z)"  />
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-lg-4 input-group">
+								<label>End Time</label>
+							</div>
+							<div class="col-lg-6">
+								<input type="text" ng-model="newEvent.endat" placeholder="ex (2017-09-27T08:00:00.000Z)" />
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-lg-10 input-group">
+								<label class="col-lg-6 radio-inline control-label">Full day event?  </label>
+								<label class="col-lg-2 radio-inline control-label"><input type="radio" ng-model="newEvent.allDay" ng-value="true"/>Yes</label>
+								<label class="col-lg-2 radio-inline control-label"><input type="radio" ng-model="newEvent.allDay" ng-value="false"/>No</label>
+							</div>
+						</div>
+
+					</div>
+					<div ng-hide="true" ng-model="newEvent.id" class="ng-hide"></div>
+					<div class="modal-footer">
+						<div class="col-sm-offset-3 col-sm-9" >
+							<input type="submit" ng-show="!newEvent.id" value="Save" class="btn btn-success" name="Save" ng-click="saveData(newEvent)" />
+							<input type="submit" ng-show="newEvent.id" value="Update" class="btn btn-success" name="Update" ng-click="updateData(newEvent)" />
+							<input type="submit" value="Cancel" class="btn btn-cancel" ng-click="cancelForm()" />
+						</div>
+					</div>
+				</div>

@@ -1,5 +1,5 @@
 /****************************************************/
-// Filename: Business Layer\event.js
+// Filename: Model\event.js
 // Created: Moinul Islam<moinul39.iit@gmail.com>
 // Change history:
 // 26.09.2017 / Moinul Islam<moinul39.iit@gmail.com>

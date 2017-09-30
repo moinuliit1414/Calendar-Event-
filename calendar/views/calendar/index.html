@@ -1,0 +1,66 @@
+<html>
+	<head>
+		<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap-theme.min.css">-->
+		<title>Calendar</title>
+	</head>
+	<body>
+		<h2>Event/Scheduler calendar using ui-calendar in AngularJS,NoadJS,Socket.IO </h2>
+		<div ng-app="myApp" ng-controller="myNgController" >
+			<div ng-show="ErrorMessage" class="alert alert-danger">
+				<strong></strong> {{ErrorMessage}}
+			</div>
+			<div ng-show="SuccessMessage" class="alert alert-success">
+				<strong></strong> {{SuccessMessage}}
+			</div>
+			<div class="row ">
+				<div class="col-md-2"></div>
+				<div class="col-md-8">
+					<div id="calendar" data-tap-disabled="true" ui-calendar="uiConfig.calendar" ng-model="eventSources" calendar="myCalendar"></div>
+				</div>
+				<div class="col-md-2"></div>
+				<!-- <div class="col-md-4"> -->
+					<!-- <div ng-show="SelectedEvent" class="alert alert-success" style="margin-top:50px"> -->
+						<!-- <h2 style="margin-top:0px"> Selected Event:</h2> -->
+						<!-- <h3 style="color:#A9A50E">{{SelectedEvent.title}}</h3> -->
+						<!-- <p>{{SelectedEvent.description}}</p> -->
+						<!-- <p>{{SelectedEvent.id}}</p> -->
+						<!-- <p>start {{SelectedEvent.startat}}</p> -->
+					<!-- </div> -->
+				<!-- </div> -->
+			</div>
+			
+			<!-- Other modal -->
+			<!-- <script type="text/ng-template"  id="newModalContent.html"> -->
+				<!-- <div class="modal-header"> -->
+					<!-- <h3>I'm a modal too!</h3> -->
+				<!-- </div> -->
+				<!-- <div class="modal-body"> -->
+					<!-- <p>Click OK to add event</p> -->
+				<!-- </div> -->
+				<!-- <div class="modal-footer"> -->
+					<!-- <button class="btn btn-primary" ng-click="ok()">OK</button> -->
+					<!-- <button class="btn btn-warning" ng-click="cancel()">Cancel</button> -->
+				<!-- </div> -->
+			<!-- </script> -->
+		</div>
+		<link rel="stylesheet" type="text/css"  href="content/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css"  href="content/fullcalendar.css"/>
+		<script src="scripts/moment.js"></script>
+		<script src="scripts/jquery-1.11.3.js"></script>
+		<script src="scripts/jquery-ui.js"></script>		
+		<script src="scripts/angular.js"></script>
+		<script src="scripts/bootstrap.min.js"></script>
+		<script src="scripts/ui-bootstrap-tpls.min.js"></script>
+		<!-- <script src="scripts/ui-bootstrap.min.js"></script> -->
+		<script src="scripts/angular-ui.min.js"></script>
+		<script src="scripts/calendar.js"></script>
+		<script src="scripts/fullcalendar.js"></script>
+		<script src="scripts/gcal.js"></script>
+		<script src="scripts/socket.io.js"></script>
+		<script src="scripts/MyApp.js"></script>
+		
+				
+		<!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script> -->
+	</body>
+</html>
