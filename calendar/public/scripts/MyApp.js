@@ -149,9 +149,14 @@ app.controller('myNgController', ['$scope','$http','$modal','$timeout','socket',
     $scope.events = [];
     $scope.eventSources = [$scope.events];
 	
+	$scope.defaultView='month';
+	
 	$scope.ErrorMessage=null;
 	$scope.SuccessMessage=null;
 	
+	if(window.innerWidth<768){
+		$scope.defaultView='listWeek';
+	}
 	
 	/// <summary>
 	///     listining server event EventAdded
@@ -298,23 +303,33 @@ app.controller('myNgController', ['$scope','$http','$modal','$timeout','socket',
 			editable: true,
             eventLimit: true, 
 			//defaultView:'listWeek',
-			defaultView:(window.innerWidth<= 800)? 'listWeek':'month',
+			windowResize:function(view){
+				if($scope.defaultView==='listWeek' && window.innerWidth>768){
+					$scope.uiConfig.calendar.defaultView=$scope.defaultView='month';
+				}else if($scope.defaultView==='month' && window.innerWidth<=768){
+					$scope.uiConfig.calendar.defaultView=$scope.defaultView='listWeek';
+				}
+				alert(window.innerWidth);
+				// uiCalendarConfig.calendars["eventsCalendar"].fullCalendar('changeView',view);
+				// $scope.changeView('listWeek');
+			},
+			defaultView:$scope.defaultView,//(window.innerWidth<= 800)? 'listWeek':'month',
 			eventClick:function(calEvent, jsEvent, view) {				
 				if(calEvent.end==null){
 					calEvent.end=calEvent.start;
 				}
 				console.log('Event clicking'+calEvent.end );
 				var event={id:calEvent.id,
-						title: calEvent.title,
-						description: calEvent.description,
-						start:  new Date( calEvent.start ),
-						end: new Date(calEvent.end ),
-						allDay: calEvent.allDay,
-						stick: true}
+					title: calEvent.title,
+					description: calEvent.description,
+					start:  new Date( calEvent.start ),
+					end: new Date(calEvent.end ),
+					allDay: calEvent.allDay,
+					stick: true}
 				$scope.SelectedEvent = event;
 				$scope.openModal($scope.SelectedEvent)
 			},
-			viewRender: $scope.renderView,
+			//viewRender: $scope.renderView,
             eventAfterAllRender: function () {
                 if ($scope.events.length > 0 && isFirstTime) {
                     //Focus first event
