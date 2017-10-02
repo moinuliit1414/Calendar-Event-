@@ -302,16 +302,12 @@ app.controller('myNgController', ['$scope','$http','$modal','$timeout','socket',
             }, 
 			editable: true,
             eventLimit: true, 
-			//defaultView:'listWeek',
 			windowResize:function(view){
 				if($scope.defaultView==='listWeek' && window.innerWidth>768){
 					$scope.uiConfig.calendar.defaultView=$scope.defaultView='month';
 				}else if($scope.defaultView==='month' && window.innerWidth<=768){
 					$scope.uiConfig.calendar.defaultView=$scope.defaultView='listWeek';
 				}
-				alert(window.innerWidth);
-				// uiCalendarConfig.calendars["eventsCalendar"].fullCalendar('changeView',view);
-				// $scope.changeView('listWeek');
 			},
 			defaultView:$scope.defaultView,//(window.innerWidth<= 800)? 'listWeek':'month',
 			eventClick:function(calEvent, jsEvent, view) {				
@@ -329,7 +325,6 @@ app.controller('myNgController', ['$scope','$http','$modal','$timeout','socket',
 				$scope.SelectedEvent = event;
 				$scope.openModal($scope.SelectedEvent)
 			},
-			//viewRender: $scope.renderView,
             eventAfterAllRender: function () {
                 if ($scope.events.length > 0 && isFirstTime) {
                     //Focus first event
