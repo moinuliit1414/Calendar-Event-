@@ -1,4 +1,4 @@
-﻿/****************************************************/
+﻿﻿/****************************************************/
 // Filename: public\scripts\MyApp.js
 // Created: Moinul Islam<moinul39.iit@gmail.com>
 // Change history:
@@ -186,7 +186,8 @@ app.controller('myNgController', ['$scope','$http','$modal','$timeout','socket',
 		console.log("event data "+JSON.stringify(data));
 		//var totalEvent=$scope.events.length;
 		
-		var event={id:data.data._id,
+		
+		var updatedEvent={id:data.data._id,
 						title: data.data.title,
 						description: data.data.description,
 						start:  new Date( Date.parse( data.data.startat )),
@@ -194,15 +195,19 @@ app.controller('myNgController', ['$scope','$http','$modal','$timeout','socket',
 						allDay: data.data.isfullday,
 						stick: true}
 		for (let evn of $scope.events) {
-			if (evn.id === event.id) {
+			if (evn.id === updatedEvent.id) {
+				uiCalendarConfig.calendars.myCalendar.fullCalendar('removeEventSources');
+				//uiCalendarConfig.calendars.myCalendar.fullCalendar( 'removeEvents', evn.id )
 				var a=$scope.events.indexOf(evn);
-				$scope.events[a]=event;
+				updatedEvent._id=evn._id;
+				$scope.events[a]=updatedEvent;
 				//this.orders.splice(this.orders.indexOf(order), 1);
-				//break;
+				//$scope.$apply();
+				uiCalendarConfig.calendars.myCalendar.fullCalendar('addEventSource',$scope.events);
+				uiCalendarConfig.calendars.myCalendar.fullCalendar('rerenderEvents');
+				break;
 			}
 		}
-        $scope.$apply();// apply scope value chaange
-		
 	});
 	
 	
